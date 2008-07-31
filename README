@@ -1,0 +1,23 @@
+# == Mollie SMS ==
+#
+# author: Tom-Eric Gerritsen <tomeric@i76.nl>
+#
+# A library for sending SMSes using the Mollie.nl SMS gateway.
+# 
+# The SMS class allows you to send multiple sms messages using a single
+# configuration. As an alternative, you can specify all settings as a hash
+# when initializing an object, or set the different settings after an object
+# is initialized using the setter methods.
+#
+# == Usage
+# require 'mollie'
+# 
+# # sending a message to one receiver
+# sms = Mollie::SMS.new('username', 'password')
+# sms.originator = '0612345678'
+# sms.send('0687654321', 'Hello, this is an SMS!')
+#
+# # sending a message to multiple receivers
+# sms = Mollie::SMS.new('username', 'password')
+# sms.originator = '0612345678'
+# sms.send(['0687654321', '0612435687'], 'Hello, these are SMSes!')
