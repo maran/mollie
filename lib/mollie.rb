@@ -1,6 +1,7 @@
 # mollie.rb: Library for sending SMS using the mollie.nl API
 # author: Tom-Eric Gerritsen <tomeric@i76.nl>
 
+require 'rubygems'
 require 'uri'
 require 'net/http'
 require 'hpricot'
@@ -54,12 +55,12 @@ module Mollie
         if resultcode == 10
           return true
         else
-          throw MollieException.by_code(resultcode)
+          raise MollieException.by_code(resultcode)
           
           return false
         end
       else
-        throw MollieException
+        raise MollieException
         
         return false
       end
@@ -91,10 +92,12 @@ module Mollie
   end
 
   class MollieException < Exception
-    attr_reader :resultcode
-  
-    @resultcode = -1
+    @@resultcode = -1
     
+    def resultcode
+      @@resultcode
+    end
+
     class << self
       def by_code(code)
         case code.to_i
@@ -129,17 +132,17 @@ module Mollie
     end
   end
 
-  class NoUserNameException < MollieException; @resultcode = 20; end
-  class NoPasswordException < MollieException; @resultcode = 21; end
-  class InvalidOriginatorException < MollieException; @resultcode = 22; end
-  class RecipientMissingException < MollieException; @resultcode = 23; end
-  class MessageMissingException < MollieException; @resultcode = 24; end
-  class InvalidRecipientException < MollieException; @resultcode = 25; end
-  class InvalidOriginatorException < MollieException; @resultcode = 26; end
-  class InvalidMessageException < MollieException; @resultcode = 27; end
-  class ParameterException < MollieException; @resultcode = 29; end
-  class AuthenticationException < MollieException; @resultcode = 30; end
-  class InsufficientCreditsException < MollieException; @resultcode = 31; end
-  class GatewayUnreachableException < MollieException; @resultcode = 98; end
-  class UnknownException < MollieException; @resultcode = 99; end
+  class NoUserNameException < MollieException; @@resultcode = 20; end
+  class NoPasswordException < MollieException; @@resultcode = 21; end
+  class InvalidOriginatorException < MollieException; @@resultcode = 22; end
+  class RecipientMissingException < MollieException; @@resultcode = 23; end
+  class MessageMissingException < MollieException; @@resultcode = 24; end
+  class InvalidRecipientException < MollieException; @@resultcode = 25; end
+  class InvalidOriginatorException < MollieException; @@resultcode = 26; end
+  class InvalidMessageException < MollieException; @@resultcode = 27; end
+  class ParameterException < MollieException; @@resultcode = 29; end
+  class AuthenticationException < MollieException; @@resultcode = 30; end
+  class InsufficientCreditsException < MollieException; @@resultcode = 31; end
+  class GatewayUnreachableException < MollieException; @@resultcode = 98; end
+  class UnknownException < MollieException; @@resultcode = 99; end
 end
