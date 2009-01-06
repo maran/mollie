@@ -1,41 +1,41 @@
-# == Mollie SMS ==
-#
-# author: Tom-Eric Gerritsen <tomeric@i76.nl>
-# 
-# A library for sending SMSes using the Mollie.nl SMS gateway.
-# 
-# The SMS class allows you to send multiple sms messages using a single
-# configuration. As an alternative, you can specify all settings as a hash
-# when initializing an object, or set the different settings after an object
-# is initialized using the setter methods.
-#
-# == Usage
-# require 'mollie'
-# 
-# # sending a message to one receiver
-# sms = Mollie::SMS.new('username', 'password')
-# sms.originator = '0612345678'
-# sms.send('0687654321', 'Hello, this is an SMS!')
-#
-# # sending a message to multiple receivers
-# sms = Mollie::SMS.new('username', 'password')
-# sms.originator = '0612345678'
-# sms.send(['0687654321', '0612435687'], 'Hello, these are SMSes!')
-#
-# # sending a timed message 
-# sms = Mollie::SMS.new('username', 'password')
-# sms.orginator = '0612345678'
-# sms.send("0687654321", "This is a message from the past!", {:delivery_date => "20090202120200", :reference => "scarymessage"})
-#
-# # cancelling a message
-# sms = Mollie::SMS.new('username', 'password')
-# sms.orginator = '0612345678'
-# sms.cancel("scarymessage")
+ == Mollie SMS
 
-# Install Install
-# cd vendor/plugins
-# git clone git://github.com/i76/mollie.git
-# cd mollie
-# git checkout 
-# cd ..
-# rm -rf mollie/.git
+ author: Tom-Eric Gerritsen <tomeric@i76.nl>
+ 
+ A library for sending SMSes using the Mollie.nl SMS gateway.
+ 
+ The SMS class allows you to send multiple sms messages using a single
+ configuration. As an alternative, you can specify all settings as a hash
+ when initializing an object, or set the different settings after an object
+ is initialized using the setter methods.
+
+ == Usage
+ require 'mollie'
+ 
+ # sending a message to one receiver
+ sms = Mollie::SMS.new('username', 'password')
+ sms.originator = '0612345678'
+ sms.send('0687654321', 'Hello, this is an SMS!')
+
+ # sending a message to multiple receivers
+ sms = Mollie::SMS.new('username', 'password')
+ sms.originator = '0612345678'
+ sms.send(['0687654321', '0612435687'], 'Hello, these are SMSes!')
+
+ # sending a timed message 
+ sms = Mollie::SMS.new('username', 'password')
+ sms.orginator = '0612345678'
+ sms.send("0687654321", "This is a message from the past!", {:delivery_date => "20090202120200", :reference => "scarymessage"})
+
+ # cancelling a message
+ sms = Mollie::SMS.new('username', 'password')
+ sms.orginator = '0612345678'
+ sms.cancel("scarymessage")
+
+ # Install Install
+ cd vendor/plugins
+ git clone git://github.com/i76/mollie.git
+ cd mollie
+ git checkout 
+ cd ..
+ rm -rf mollie/.git
