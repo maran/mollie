@@ -55,14 +55,10 @@ module Mollie
       self.gateway    = hash[:gateway]    if hash[:gateway]
     end
 		
-		# Send a message through mollie. Takes two obligatory arguments and one optional options hash.
+		# Send a message through mollie. .
+		# Takes two obligatory arguments and one optional options hash.
 		# The options hash can include a reference and delivery_date for timed messages
     def send(recipients, message, options = {})
- 			unless options[:delivery_date].blank?
-				raise DeliveryDateButNoReferenceException if options.include?(:delivery_date) && !options.include?(:reference)
-	 			raise WrongDateFormatException	if options[:delivery_date].size < 14 || (options[:delivery_date].match(/\D+/) != nil)
-			end
-
       uri = prepare_send_uri(recipients, message, options)
       res = Net::HTTP.get_response(uri)   	
 			parse_response_code(res)
@@ -70,42 +66,39 @@ module Mollie
   	
 		# Cancels a timed message through the reference
 		def cancel(reference)
-				raise NoReferenceException if reference.blank?
 				self.gateway = "http://www.mollie.nl/xml/sms_cancel/"
 	      arguments = {
 	        :username   => self.username,
 	        :password   => self.password,
 	        :reference => reference
 	      }
-	
 				uri = parse_uri(arguments)
 	      res = Net::HTTP.get_response(uri)
-				parse_response_code(res, false)
+				parse_response_code(res)
 		end
 
 
   private
 
-		def parse_response_code(res, send = true)
+		def parse_response_code(res)
+			# If we got a 200 page found
 			if res.code.to_i == 200
-        doc = Hpricot(res.body)
+				# Get the body
+        doc = Hpricot(res.body)				      
+				# Look for the success xml tag, everything went great!
+				success = (doc/"success").inner_html
+				return unless success == "false"
 
-        resultcode = (doc/"resultcode").inner_html.to_i
+				# If we are here not everything went as smoothly as expected
+				# Let's get the error-code + message
+				resultcode = (doc/"resultcode").inner_html.to_i
+				message = (doc/"resultmessage").inner_html
 
-        if resultcode == 10
-          return true
-        else
-					if send == true
-          	raise MollieException.by_cancel_code(resultcode)          
-					else
-						raise MollieException.by_send_code(resultcode)          
-					end
-          return false
-        end
-      else
-        raise MollieException
-        return false
-      end
+				error =  MollieError.new(resultcode,message)
+				raise error
+			else
+				raise "Mollie was unbreachable"
+			end
 		end
 		
     def prepare_send_uri(recipients, message, options = {})
@@ -143,80 +136,11 @@ module Mollie
   end
 
 	
-  class MollieException < Exception
-    attr_reader :resultcode
-  
-    @resultcode = -10
-    
-    class << self
-			def by_cancel_code(code)
-				case code.to_i
-        when 20
-          NoUserNameException
-        when 21
-          NoPasswordException
-        when 22
-          NoReferenceException
-        when 30
-          AuthenticationException
-				when 40
-					ReferencedMessageNotFound
-				end
-			end
-			
-      def by_send_code(code)
-        case code.to_i
-        when 20
-          NoUserNameException
-        when 21
-          NoPasswordException
-        when 22
-          InvalidOriginatorException
-        when 23
-          RecipientMissingException
-        when 24
-          MessageMissingException
-        when 25
-          InvalidRecipientException
-        when 26
-          InvalidOriginatorException
-        when 27
-          InvalidMessageException
-        when 29
-          ParameterException
-        when 30
-          AuthenticationException
-        when 31
-          InsufficientCreditsException
-        when 98
-          GatewayUnreachableException
-        when 99
-          UnknownException
-        end
-      end
-    end
-  end
-
-	# Mollie cancelled errors
-	class NoReferenceException < MollieException; @resultcode = 22; end
-	class ReferencedMessageNotFound < MollieException; @resultcode = 40; end
-	
-	# Self proclaimed errors
-	class WrongDateFormatException < MollieException; @resultcode = -2; end
-	class DeliveryDateButNoReferenceException < MollieException; @resultcode = -1; end
-	
-	# Mollie send errors
-  class NoUserNameException < MollieException; @resultcode = 20; end
-  class NoPasswordException < MollieException; @resultcode = 21; end
-  class InvalidOriginatorException < MollieException; @resultcode = 22; end
-  class RecipientMissingException < MollieException; @resultcode = 23; end
-  class MessageMissingException < MollieException; @resultcode = 24; end
-  class InvalidRecipientException < MollieException; @resultcode = 25; end
-  class InvalidOriginatorException < MollieException; @resultcode = 26; end
-  class InvalidMessageException < MollieException; @resultcode = 27; end
-  class ParameterException < MollieException; @resultcode = 29; end
-  class AuthenticationException < MollieException; @resultcode = 30; end
-  class InsufficientCreditsException < MollieException; @resultcode = 31; end
-  class GatewayUnreachableException < MollieException; @resultcode = 98; end
-  class UnknownException < MollieException; @resultcode = 99; end
+  class MollieError < StandardError
+		attr_reader :code, :message
+		
+		def initialize(code, message)
+			@code, @message = code, message
+		end
+	end
 end
